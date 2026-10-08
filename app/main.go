@@ -19,7 +19,7 @@ func main() {
 			fmt.Println("Error reading input:", err)
 			os.Exit(1)
 		}
-		command = strings.TrimSpace(command[:len(command)-1])
+		command = strings.TrimSpace(command)
 
 		args := strings.Split(command, " ")
 		switch args[0] {
