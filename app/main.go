@@ -21,7 +21,7 @@ func main() {
 		}
 		command = strings.TrimSpace(command)
 
-		args := strings.Split(command, " ")
+		args := strings.Fields(command)
 		switch args[0] {
 		case "exit":
 			os.Exit(0)
