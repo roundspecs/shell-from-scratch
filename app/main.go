@@ -30,7 +30,7 @@ func main() {
 		case "type":
 			if slices.Contains(builtinCommands, args[1]) {
 				fmt.Println(args[1], "is a shell builtin")
-			} else if path := isInPath(args[1]); path != "" {
+			} else if path := getPath(args[1]); path != "" {
 				fmt.Println(args[1], "is", path)
 			} else {
 				fmt.Println(args[1] + ": not found")
@@ -41,7 +41,7 @@ func main() {
 	}
 }
 
-func isInPath(command string) string {
+func getPath(command string) string {
 	paths := strings.SplitSeq(os.Getenv("PATH"), ":")
 	for path := range paths {
 		entries, err := os.ReadDir(path)
@@ -57,7 +57,7 @@ func isInPath(command string) string {
 				continue
 			}
 			if entry.Name() == command {
-				return path + "/"
+				return path + "/" + entry.Name()
 			}
 		}
 	}
