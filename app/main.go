@@ -46,14 +46,11 @@ func getPath(command string) string {
 	for path := range paths {
 		entries, err := os.ReadDir(path)
 		if err != nil {
-			fmt.Println("Error reading directories in ", path+":", err.Error())
+			continue
 		}
 		for _, entry := range entries {
 			executable, err := isExecutable(entry)
-			if err != nil {
-				fmt.Println("Error reading info about ", entry.Name()+":", err.Error())
-			}
-			if !executable {
+			if err != nil || !executable {
 				continue
 			}
 			if entry.Name() == command {
