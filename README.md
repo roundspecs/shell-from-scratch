@@ -1,34 +1,67 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/248b80fd-2b26-4628-b2b9-96bafcc0d26e)](https://app.codecrafters.io/users/roundspecs?r=2qF)
+# Shell
 
-This is a starting point for Go solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+A lightweight, custom command-line shell written from scratch in Go. Built to explore operating systems concepts, REPL mechanics, command parsing, and process execution.
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+## Overview
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+An interactive Unix-like shell environment implemented in Go. It provides a standard Read-Eval-Print Loop (REPL), parses user input, and evaluates built-in shell commands and program execution flows without relying on existing shell wrappers.
 
-# Passing the first stage
+This project was built to gain a deep, hands-on understanding of how modern shells (such as Bash and Zsh) interact with operating system primitives, handle I/O, and manage command lifecycles.
 
-The entry point for your `shell` implementation is in `app/main.go`. Study and
-uncomment the relevant code, then run the command below to execute the tests on
-our servers:
+## Getting Started
 
-```sh
-codecrafters submit
+### Prerequisites
+
+- [Go](https://go.dev/) (1.22 or higher recommended)
+- A POSIX-compatible environment (Linux, macOS) or WSL on Windows
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/roundspecs/shell-from-scratch.git
+cd codecrafters-shell-go
 ```
 
-Time to move on to the next stage!
+### Running the Shell
 
-# Stage 2 & beyond
+You can run the shell directly using `go run`:
 
-Note: This section is for stages 2 and beyond.
+```bash
+go run app/main.go
+```
 
-1. Ensure you have `go (1.27)` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `app/main.go`.
-1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
-   output will be streamed to your terminal.
+Or build a standalone binary:
+
+```bash
+# Build binary
+go build -o bin/shell app/main.go
+
+# Run
+./bin/shell
+```
+
+---
+
+## Usage Example
+
+```text
+$ echo Hello, world!
+Hello, world!
+
+$ type echo
+echo is a shell builtin
+
+$ type exit
+exit is a shell builtin
+
+$ type my_script
+my_script: not found
+
+$ nonexistent-command
+nonexistent-command: command not found
+
+$ exit
+```
+
