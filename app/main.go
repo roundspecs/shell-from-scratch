@@ -18,9 +18,12 @@ func main() {
 			os.Exit(1)
 		}
 		command = strings.TrimSpace(command[:len(command)-1])
-		switch command {
+		args := strings.Split(command, " ")
+		switch args[0] {
 		case "exit":
 			os.Exit(0)
+		case "echo":
+			fmt.Println(strings.Join(args[1:], " "))
 		default:
 			fmt.Printf("%v: command not found\n", command)
 		}
