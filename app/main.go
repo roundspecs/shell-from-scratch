@@ -44,28 +44,16 @@ func main() {
 func getPath(command string) string {
 	paths := strings.SplitSeq(os.Getenv("PATH"), ":")
 	for path := range paths {
-		entries, err := os.ReadDir(path)
+		filePath := path + "/" + command
+		info, err := os.Stat(filePath)
 		if err != nil {
 			continue
 		}
-		for _, entry := range entries {
-			executable, err := isExecutable(entry)
-			if err != nil || !executable {
-				continue
-			}
-			if entry.Name() == command {
-				return path + "/" + entry.Name()
-			}
+		mode := info.Mode()
+		if mode.IsRegular() && mode&0111 != 0 {
+			return filePath
 		}
 	}
 	return ""
 }
 
-func isExecutable(entry os.DirEntry) (bool, error) {
-	info, err := entry.Info()
-	if err != nil {
-		return false, err
-	}
-	mode := info.Mode()
-	return mode.IsRegular() && mode&0111 != 0, nil
-}
