@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 			fmt.Println("Error reading input:", err)
 			os.Exit(1)
 		}
-		command = command[:len(command)-1]
+		command = strings.TrimSpace(command[:len(command)-1])
 		switch command {
 		case "exit":
 			os.Exit(0)
