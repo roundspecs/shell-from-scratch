@@ -12,7 +12,8 @@ func main() {
 	fmt.Print("$ ")
 	command, err := scanner.ReadString('\n')
 	if err != nil {
-		return
+		fmt.Println("Error reading input:", err)
+		os.Exit(1)
 	}
 	fmt.Printf("%v: command not found", command[:len(command)-1])
 }
