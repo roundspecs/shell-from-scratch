@@ -43,7 +43,7 @@ func main() {
 			if path := getPath(args[0]); path != "" {
 				cmd := exec.Command(args[0], args[1:]...)
 				b, _ := cmd.Output()
-				fmt.Printf(string(b))
+				fmt.Print(string(b))
 			} else {
 				fmt.Printf("%v: command not found\n", command)
 			}
