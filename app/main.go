@@ -36,6 +36,9 @@ func main() {
 			} else {
 				fmt.Println(args[1] + ": not found")
 			}
+		case "pwd":
+			wd, _ := os.Getwd()
+			fmt.Println(wd)
 		default:
 			if path := getPath(args[0]); path != "" {
 				cmd := exec.Command(args[0], args[1:]...)
@@ -57,7 +60,7 @@ func getPath(command string) string {
 			continue
 		}
 		mode := info.Mode()
-		if mode.IsRegular() && mode&0111 != 0 {
+		if mode.IsRegular() && mode&0o111 != 0 {
 			return filePath
 		}
 	}
