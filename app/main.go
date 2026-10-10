@@ -11,7 +11,7 @@ import (
 
 func main() {
 	scanner := bufio.NewReader(os.Stdin)
-	builtinCommands := []string{"exit", "echo", "type"}
+	builtinCommands := []string{"exit", "echo", "type", "pwd"}
 
 	for {
 		fmt.Print("$ ")
