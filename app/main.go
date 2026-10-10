@@ -11,7 +11,7 @@ import (
 
 func main() {
 	scanner := bufio.NewReader(os.Stdin)
-	builtinCommands := []string{"exit", "echo", "type", "pwd"}
+	builtinCommands := []string{"exit", "echo", "type", "pwd", "cd"}
 
 	for {
 		fmt.Print("$ ")
@@ -39,6 +39,11 @@ func main() {
 		case "pwd":
 			wd, _ := os.Getwd()
 			fmt.Println(wd)
+		case "cd":
+			err := os.Chdir(args[1])
+			if err != nil {
+				fmt.Println("cd:", args[1]+": No such file or directory")
+			}
 		default:
 			if path := getPath(args[0]); path != "" {
 				cmd := exec.Command(args[0], args[1:]...)
