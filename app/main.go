@@ -53,6 +53,9 @@ func getArgs(prompt io.Reader) []string {
 		}
 
 		if backSlash {
+			if doubleQuote && !strings.ContainsRune(`"\`, rune(char[0])) {
+				arg.WriteByte('\\')
+			}
 			arg.WriteByte(char[0])
 			backSlash = false
 			continue
@@ -65,7 +68,15 @@ func getArgs(prompt io.Reader) []string {
 			doubleQuote = !doubleQuote
 			continue
 		}
-		if singleQuote || doubleQuote {
+		if singleQuote {
+			arg.WriteByte(char[0])
+			continue
+		}
+		if doubleQuote {
+			if char[0] == '\\' {
+				backSlash = true
+				continue
+			}
 			arg.WriteByte(char[0])
 			continue
 		}
