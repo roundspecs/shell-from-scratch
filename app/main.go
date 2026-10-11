@@ -41,7 +41,8 @@ func main() {
 func getArgs(prompt io.Reader) []string {
 	args := []string{}
 	char := make([]byte, 1)
-	quote := false
+	singleQuote := false
+	doubleQuote := false
 	arg := strings.Builder{}
 	for {
 		_, err := prompt.Read(char)
@@ -50,11 +51,15 @@ func getArgs(prompt io.Reader) []string {
 			break
 		}
 
-		if char[0] == '\'' {
-			quote = !quote
+		if !doubleQuote && char[0] == '\'' {
+			singleQuote = !singleQuote
 			continue
 		}
-		if quote {
+		if !singleQuote && char[0] == '"' {
+			doubleQuote = !doubleQuote
+			continue
+		}
+		if singleQuote || doubleQuote {
 			arg.WriteByte(char[0])
 			continue
 		}
