@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -33,7 +34,7 @@ func main() {
 			os.Exit(1)
 		}
 		command = strings.TrimSpace(command)
-		args := strings.Fields(command)
+		args := getArgs(strings.NewReader(command))
 
 		if len(args) == 0 {
 			continue
@@ -103,4 +104,38 @@ func getPath(command string) string {
 		}
 	}
 	return ""
+}
+
+func getArgs(prompt io.Reader) []string {
+	args := []string{}
+	char := make([]byte, 1)
+	quote := false
+	arg := strings.Builder{}
+	for {
+		_, err := prompt.Read(char)
+		if err != nil {
+			args = append(args, arg.String())
+			break
+		}
+
+		if char[0] == '\'' {
+			quote = !quote
+			continue
+		}
+		if quote {
+			arg.WriteByte(char[0])
+			continue
+		}
+
+		if char[0] == ' ' {
+			if arg.Len() > 0 {
+				args = append(args, arg.String())
+				arg.Reset()
+				continue
+			}
+		} else {
+			arg.WriteByte(char[0])
+		}
+	}
+	return args
 }
