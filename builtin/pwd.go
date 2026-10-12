@@ -2,11 +2,12 @@ package builtin
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
-func Pwd(args []string) error {
+func Pwd(args []string, w io.Writer) error {
 	wd, _ := os.Getwd()
-	fmt.Println(wd)
+	_, _ = fmt.Fprintln(w, wd)
 	return nil
 }

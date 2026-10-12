@@ -2,11 +2,12 @@ package builtin
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
 
-func Cd(args []string) error {
+func Cd(args []string, w io.Writer) error {
 	if len(args) == 0 {
 		args = append(args, os.Getenv("HOME"))
 	} else if strings.HasPrefix(args[0], "~") {
