@@ -24,25 +24,7 @@ func main() {
 		}
 		command = strings.TrimSpace(command)
 		args := getArgs(strings.NewReader(command))
-
-		stdoutRedirectIdx := slices.Index(args, ">")
-		var stdoutRedirect string
-		if stdoutRedirectIdx == -1 {
-			stdoutRedirectIdx = slices.Index(args, "1>")
-		}
-		if stdoutRedirectIdx != -1 {
-			stdoutRedirect = args[stdoutRedirectIdx+1]
-			args = args[:stdoutRedirectIdx]
-		}
-		stdout := GetWriter(stdoutRedirect)
-
-		stderrRedirectIdx := slices.Index(args, "2>")
-		var stderrRedirect string
-		if stderrRedirectIdx != -1 {
-			stderrRedirect = args[stderrRedirectIdx+1]
-			args = args[:stderrRedirectIdx]
-		}
-		stderr := GetWriter(stderrRedirect)
+		args, stdout, stderr := extractIO(args)
 
 		if len(args) == 0 {
 			continue
@@ -59,6 +41,50 @@ func main() {
 			_, _ = fmt.Fprintf(stderr, "%v: command not found\n", command)
 		}
 	}
+}
+
+func extractIO(args []string) (argsNew []string, stdout io.Writer, stderr io.Writer) {
+	stdout, stderr = os.Stdout, os.Stderr
+	var path string
+
+	stdoutRedirectIdx := slices.Index(args, ">")
+	if stdoutRedirectIdx == -1 {
+		stdoutRedirectIdx = slices.Index(args, "1>")
+	}
+	if stdoutRedirectIdx != -1 {
+		path = args[stdoutRedirectIdx+1]
+		argsNew = args[:stdoutRedirectIdx]
+		stdout = GetWriter(path, true)
+		return
+	}
+
+	stderrRedirectIdx := slices.Index(args, "2>")
+	if stderrRedirectIdx != -1 {
+		path = args[stderrRedirectIdx+1]
+		argsNew = args[:stderrRedirectIdx]
+		stderr = GetWriter(path, true)
+		return
+	}
+
+	stdoutAppendIdx := slices.Index(args, ">>")
+	if stdoutAppendIdx == -1 {
+		stdoutAppendIdx = slices.Index(args, "1>>")
+	}
+	if stdoutAppendIdx != -1 {
+		path = args[stdoutAppendIdx+1]
+		argsNew = args[:stdoutAppendIdx]
+		stdout = GetWriter(path, false)
+		return
+	}
+
+	stderrAppendIdx := slices.Index(args, "2>>")
+	if stderrAppendIdx != -1 {
+		path = args[stderrAppendIdx+1]
+		argsNew = args[:stderrAppendIdx]
+		stderr = GetWriter(path, false)
+		return
+	}
+	return args, stdout, stderr
 }
 
 func getArgs(prompt io.Reader) []string {
@@ -120,19 +146,20 @@ func getArgs(prompt io.Reader) []string {
 	return args
 }
 
-func GetWriter(redirect string) io.Writer {
-	if redirect == "" {
-		return os.Stdin
+func GetWriter(path string, truncate bool) io.Writer {
+	idx := strings.LastIndexByte(path, '/')
+	if idx != -1 {
+		dir := path[:idx]
+		if dir != "" {
+			_ = os.MkdirAll(dir, os.ModePerm)
+		}
 	}
-	idx := strings.LastIndexByte(redirect, '/')
-	dir := redirect[:idx]
-	if dir != "" {
-		_ = os.MkdirAll(dir, os.ModePerm)
+	var flag int
+	if truncate {
+		flag = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	} else {
+		flag = os.O_WRONLY | os.O_CREATE | os.O_APPEND
 	}
-	f, err := os.Create(redirect)
-	if err != nil {
-		fmt.Println(err)
-		return os.Stdin
-	}
+	f, _ := os.OpenFile(path, flag, 0o644)
 	return f
 }
