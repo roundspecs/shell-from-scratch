@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func Exit(args []string, w io.Writer) error {
+func Exit(args []string, stdout, stderr io.Writer) error {
 	os.Exit(0)
 	return nil
 }

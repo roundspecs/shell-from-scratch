@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-func Pwd(args []string, w io.Writer) error {
+func Pwd(args []string, stdout, stderr io.Writer) error {
 	wd, _ := os.Getwd()
-	_, _ = fmt.Fprintln(w, wd)
+	_, _ = fmt.Fprintln(stdout, wd)
 	return nil
 }

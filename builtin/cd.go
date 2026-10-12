@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func Cd(args []string, w io.Writer) error {
+func Cd(args []string, stdout, stderr io.Writer) error {
 	if len(args) == 0 {
 		args = append(args, os.Getenv("HOME"))
 	} else if strings.HasPrefix(args[0], "~") {
@@ -15,7 +15,7 @@ func Cd(args []string, w io.Writer) error {
 	}
 	err := os.Chdir(args[0])
 	if err != nil {
-		fmt.Println("cd:", args[0]+": No such file or directory")
+		fmt.Fprintln(stderr, "cd:", args[0]+": No such file or directory")
 	}
 	return nil
 }

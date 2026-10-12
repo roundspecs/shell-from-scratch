@@ -24,30 +24,39 @@ func main() {
 		}
 		command = strings.TrimSpace(command)
 		args := getArgs(strings.NewReader(command))
-		redirectIdx := slices.Index(args, ">")
-		var redirect string
-		if redirectIdx == -1 {
-			redirectIdx = slices.Index(args, "1>")
+
+		stdoutRedirectIdx := slices.Index(args, ">")
+		var stdoutRedirect string
+		if stdoutRedirectIdx == -1 {
+			stdoutRedirectIdx = slices.Index(args, "1>")
 		}
-		if redirectIdx != -1 {
-			redirect = args[redirectIdx+1]
-			args = args[:redirectIdx]
+		if stdoutRedirectIdx != -1 {
+			stdoutRedirect = args[stdoutRedirectIdx+1]
+			args = args[:stdoutRedirectIdx]
 		}
-		w := GetWriter(redirect)
+		stdout := GetWriter(stdoutRedirect)
+
+		stderrRedirectIdx := slices.Index(args, "2>")
+		var stderrRedirect string
+		if stderrRedirectIdx != -1 {
+			stderrRedirect = args[stderrRedirectIdx+1]
+			args = args[:stderrRedirectIdx]
+		}
+		stderr := GetWriter(stderrRedirect)
 
 		if len(args) == 0 {
 			continue
 		} else if builtinFunc, ok := builtin.BuiltinCommands[args[0]]; ok {
-			_ = builtinFunc(args[1:], w)
+			_ = builtinFunc(args[1:], stdout, stderr)
 		} else if path := builtin.GetPath(args[0]); path != "" {
 			cmd := exec.Command(args[0], args[1:]...)
 			b, err := cmd.Output()
 			if err != nil {
-				fmt.Print(string(err.(*exec.ExitError).Stderr))
+				_, _ = fmt.Fprint(stderr, string(err.(*exec.ExitError).Stderr))
 			}
-			_, _ = fmt.Fprint(w, string(b))
+			_, _ = fmt.Fprint(stdout, string(b))
 		} else {
-			fmt.Printf("%v: command not found\n", command)
+			_, _ = fmt.Fprintf(stderr, "%v: command not found\n", command)
 		}
 	}
 }
