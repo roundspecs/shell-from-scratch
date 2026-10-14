@@ -12,12 +12,13 @@ import (
 	"github.com/codecrafters-io/shell-starter-go/builtin"
 )
 
-type BellCompleter struct {
+type CustomCompleter struct {
 	readline.AutoCompleter
 }
 
-func (b BellCompleter) Do(line []rune, pos int) ([][]rune, int) {
+func (b CustomCompleter) Do(line []rune, pos int) ([][]rune, int) {
 	candidates, offset := b.AutoCompleter.Do(line, pos)
+	candidates = append(candidates, GetPathMatches(line, pos)...)
 	if len(candidates) == 0 {
 		fmt.Print("\a")
 	}
@@ -29,7 +30,7 @@ func main() {
 	for k := range builtin.BuiltinCommands {
 		pc = append(pc, readline.PcItem(k))
 	}
-	autoCompleter := BellCompleter{readline.NewPrefixCompleter(pc...)}
+	autoCompleter := CustomCompleter{readline.NewPrefixCompleter(pc...)}
 	r1, _ := readline.NewEx(&readline.Config{
 		Prompt:          "$ ",
 		AutoComplete:    autoCompleter,
@@ -182,4 +183,31 @@ func GetWriter(path string, truncate bool) io.Writer {
 	}
 	f, _ := os.OpenFile(path, flag, 0o644)
 	return f
+}
+
+func GetPathMatches(line []rune, pos int) [][]rune {
+	prefix := string(line[:pos])
+	if i := strings.LastIndexByte(prefix, ' '); i != -1 {
+		prefix = prefix[i+1:]
+	}
+	paths := strings.SplitSeq(os.Getenv("PATH"), ":")
+	var suggestions [][]rune
+
+	for path := range paths {
+		files, err := os.ReadDir(path)
+		if err != nil {
+			continue
+		}
+		for _, file := range files {
+			fname := file.Name()
+			if !strings.HasPrefix(fname, prefix) {
+				continue
+			}
+			if _, ok := builtin.BuiltinCommands[fname]; ok {
+				continue
+			}
+			suggestions = append(suggestions, []rune(fname + " ")[pos:])
+		}
+	}
+	return suggestions
 }
