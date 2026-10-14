@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -9,15 +8,24 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/chzyer/readline"
 	"github.com/codecrafters-io/shell-starter-go/builtin"
 )
 
 func main() {
-	scanner := bufio.NewReader(os.Stdin)
+	pc := make([]readline.PrefixCompleterInterface, 0)
+	for k := range builtin.BuiltinCommands {
+		pc = append(pc, readline.PcItem(k))
+	}
+	autoCompleter := readline.NewPrefixCompleter(pc...)
+	r1, _ := readline.NewEx(&readline.Config{
+		Prompt:          "$ ",
+		AutoComplete:    autoCompleter,
+		InterruptPrompt: "^C",
+	})
 
 	for {
-		fmt.Print("$ ")
-		command, err := scanner.ReadString('\n')
+		command, err := r1.Readline()
 		if err != nil {
 			fmt.Println("Error reading input:", err)
 			os.Exit(1)
