@@ -12,12 +12,24 @@ import (
 	"github.com/codecrafters-io/shell-starter-go/builtin"
 )
 
+type BellCompleter struct {
+	readline.AutoCompleter
+}
+
+func (b BellCompleter) Do(line []rune, pos int) ([][]rune, int) {
+	candidates, offset := b.AutoCompleter.Do(line, pos)
+	if len(candidates) == 0 {
+		fmt.Print("\a")
+	}
+	return candidates, offset
+}
+
 func main() {
 	pc := make([]readline.PrefixCompleterInterface, 0)
 	for k := range builtin.BuiltinCommands {
 		pc = append(pc, readline.PcItem(k))
 	}
-	autoCompleter := readline.NewPrefixCompleter(pc...)
+	autoCompleter := BellCompleter{readline.NewPrefixCompleter(pc...)}
 	r1, _ := readline.NewEx(&readline.Config{
 		Prompt:          "$ ",
 		AutoComplete:    autoCompleter,
