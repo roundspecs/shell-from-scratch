@@ -12,6 +12,7 @@ import (
 	"github.com/codecrafters-io/shell-starter-go/builtin"
 )
 
+var prevTab bool = false
 type CustomCompleter struct {
 	readline.AutoCompleter
 }
@@ -20,9 +21,18 @@ func (b CustomCompleter) Do(line []rune, pos int) ([][]rune, int) {
 	candidates, offset := b.AutoCompleter.Do(line, pos)
 	candidates = append(candidates, GetPathMatches(line, pos)...)
 	if len(candidates) == 0 {
+		prevTab = false
 		fmt.Print("\a")
+	} else if len(candidates) == 1 {
+		prevTab = false
+		return candidates, offset
+	} else if prevTab {
+		prevTab = false
+		return candidates, offset
 	}
-	return candidates, offset
+	fmt.Print("\x07")
+	prevTab = true
+	return [][]rune{}, 0
 }
 
 func main() {
@@ -206,7 +216,7 @@ func GetPathMatches(line []rune, pos int) [][]rune {
 			if _, ok := builtin.BuiltinCommands[fname]; ok {
 				continue
 			}
-			suggestions = append(suggestions, []rune(fname + " ")[pos:])
+			suggestions = append(suggestions, []rune(fname + " "))
 		}
 	}
 	return suggestions
